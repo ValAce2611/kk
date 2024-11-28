@@ -1,1 +1,61 @@
+from ursina import *
+from ursina.prefabs.first_person_controller import FirstPersonController
+import random
 
+ob_list=[]
+
+app=Ursina()
+controls=FirstPersonController()
+controls.speed= 10
+player1 = Entity(model='male',color=color.peach,position=(0,6,0), parent=controls)
+
+ground = Entity(model="cube",scale=(40, 1, 40),collider="mesh",texture= "grass",texture_scale=(25,25),color=color.white)
+Sky()
+camera.position = (0, 7, -20)
+camera.rotation_x = 30
+camera.look_at(player1)
+
+def start_ob():
+        #cube_colour = random.choice([(crimson),(thistle),(beige),(pink)])
+        cube_colour=random.choice([(220,20,60),(216,191,216),(245,245,220),(255,192,203)])
+        r=cube_colour[0]
+        g=cube_colour[1]
+        b=cube_colour[2]
+        
+        cube_sizex=random.randrange(3,12)
+        cube_sizey=random.randrange(1,10)
+        cube_sizez=random.randrange(3,12)
+        global checkx,checkz
+        checkx=checkz=None
+        x_z_axis= random.choice(["xaxis","zaxis"])
+        if x_z_axis=="xaxis":
+                pos=random.choice([-20,20])
+                if pos==25: checkx=True
+                else: checkx=False
+                cube="a"+str(random.randrange(1,25))+"\n"
+                cube=Entity(model="cube",scale=(1,cube_sizey,cube_sizez),position=(pos,2,0),collider="box",color=color.rgb32(r,g,b))
+                ob_list.append(cube)
+        else: 
+                pos=random.choice([-20,20])
+                if pos==25: checkz=True
+                else: checkz=False
+                cube="a"+str(random.randrange(1,25))+"\n"
+                cube=Entity(model="cube",scale=(cube_sizex,cube_sizey,1),position=(0,2,pos),collider="box",color=color.rgb32(r,g,b))
+                ob_list.append(cube) 
+        
+start_ob() 
+def update():
+  
+  for i in ob_list :
+        
+        if checkx!=None: 
+                if checkx==True: i.x-=time.dt*7
+                else: i.x+=time.dt*7
+        if checkz!=None: 
+                if checkz==True: i.z-=time.dt*7
+                else: i.z+=time.dt*7
+        if i.position.z<-20 or i.position.z>20 or i.position.x<-20 or i.position.x>20: 
+               ob_list.remove(i)
+               destroy(i)
+               start_ob()
+app.run()
